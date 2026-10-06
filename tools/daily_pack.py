@@ -1,8 +1,10 @@
 """สร้างชุดคอนเทนต์ประจำวัน: คลิปแนวตั้ง 15 วินาที + แคปชัน 4 แพลตฟอร์ม
 
-ใช้: python3 tools/daily_pack.py [วันที่ YYYY-MM-DD] [--product <id>]
+ใช้: python3 tools/daily_pack.py [วันที่ YYYY-MM-DD] [--input สินค้า.json]
+--input คือรายการสินค้าจาก Notion (ชื่อสินค้า, ลิงก์, โค้ด, จุดเด่น, ขายได้, สถานะ, ทำล่าสุด, มุมล่าสุด)
+ไม่ใส่ --input จะใช้ products.json
+เลือกสินค้า: ตัวที่ขายได้ถูกเลือกถี่ขึ้น ไม่ซ้ำสองวันติด  เลือกมุม: เปลี่ยนทุกวัน ไม่ซ้ำมุมล่าสุดของสินค้านั้น
 ผลลัพธ์อยู่ในโฟลเดอร์ out/
-สินค้าหมุนเวียนวันละชิ้นตามลำดับใน products.json ประโยคเปิดเปลี่ยนทุกรอบ
 """
 import json, math, os, subprocess, sys, datetime
 from PIL import Image, ImageDraw, ImageFont
@@ -176,30 +178,87 @@ def captions(p, hook, hub):
     }
 
 
+ANGLES = [
+    ("ใช้จริงทุกวัน", "{name} ที่ผมใช้ทุกวัน"),
+    ("3 เหตุผล", "3 เหตุผลที่ควรมี{name}"),
+    ("ใครเหมาะ", "ใครควรมี{name}?"),
+    ("ของคุ้มงบน้อย", "{name} งบไม่แรง แต่คุ้ม"),
+    ("ก่อนและหลัง", "ก่อนมี กับ หลังมี{name}"),
+    ("ปัญหาและทางแก้", "ยังไม่มี{name}? ดูนี่ก่อน"),
+    ("ไอเดียของขวัญ", "ไอเดียของขวัญ: {name}"),
+]
+SOLD_ANGLE = ("มีคนซื้อตามแล้ว", "{name} ตัวที่มีคนสั่งตามแล้ว")
+
+
+def load_items(path):
+    if path:
+        items = json.load(open(path, encoding="utf-8"))
+    else:
+        items = json.load(open(os.path.join(ROOT, "products.json"), encoding="utf-8"))["products"]
+    out = []
+    for i, x in enumerate(items):
+        b = x.get("benefits") or [t.strip() for t in str(x.get("จุดเด่น", "")).split("/") if t.strip()]
+        while len(b) < 3:
+            b.append(["ใช้งานง่าย", "คุ้มราคา", "รีวิวดี"][len(b)])
+        name = x.get("name") or x.get("ชื่อสินค้า")
+        out.append({
+            "id": x.get("id") or x.get("url") or str(i), "name": name,
+            "link": x.get("link") or x.get("ลิงก์"), "code": x.get("code") or x.get("โค้ด") or "",
+            "benefits": b[:3], "sold": float(x.get("sold") or x.get("ขายได้") or 0),
+            "last": x.get("last") or x.get("ทำล่าสุด") or "", "last_angle": x.get("last_angle") or x.get("มุมล่าสุด") or "",
+            "active": (x.get("สถานะ") or "ใช้งาน") != "พัก",
+            "tags": x.get("tags") or [name.replace(" ", ""), "รีวิวของใช้", "ของมันต้องมี"],
+        })
+    return [x for x in out if x["active"] and x["link"]]
+
+
+def pick(items, day):
+    """สินค้าที่ขายได้ถูกเลือกถี่ขึ้น และไม่ทำสินค้าเดิมซ้ำสองวันติด"""
+    def days_since(x):
+        try:
+            return (day - datetime.date.fromisoformat(x["last"][:10])).days
+        except ValueError:
+            return 30
+    pool = [x for x in items if days_since(x) >= 2] or [x for x in items if days_since(x) >= 1] or items
+    return max(pool, key=lambda x: ((1 + 3 * x["sold"]) * min(days_since(x), 7), -items.index(x)))
+
+
+def pick_angle(p, day):
+    angles = ([SOLD_ANGLE] if p["sold"] > 0 else []) + ANGLES
+    start = day.toordinal() % len(angles)
+    for k in range(len(angles)):
+        a = angles[(start + k) % len(angles)]
+        if a[0] != p["last_angle"]:
+            return a
+    return angles[start]
+
+
 def main():
     args = sys.argv[1:]
-    pid = None
-    if "--product" in args:
-        i = args.index("--product"); pid = args[i + 1]; del args[i:i + 2]
+    src = None
+    if "--input" in args:
+        i = args.index("--input"); src = args[i + 1]; del args[i:i + 2]
     day = datetime.date.fromisoformat(args[0]) if args else datetime.date.today()
     data = json.load(open(os.path.join(ROOT, "products.json"), encoding="utf-8"))
-    items = data["products"]
-    n = day.toordinal()
-    p = next((x for x in items if x["id"] == pid), None) if pid else items[n % len(items)]
-    if p is None:
-        sys.exit(f"ไม่พบสินค้า {pid}")
-    hook = p["hooks"][(n // len(items)) % len(p["hooks"])]
+    items = load_items(src)
+    if not items:
+        sys.exit("ไม่มีสินค้าที่สถานะใช้งาน")
+    p = pick(items, day)
+    angle, tpl = pick_angle(p, day)
+    hook = tpl.format(name=p["name"])
     os.makedirs(OUT, exist_ok=True)
-    stem = f"{day.isoformat()}-{p['id']}"
+    safe = "".join(c for c in p["name"] if c.isalnum())[:20] or "product"
+    stem = f"{day.isoformat()}-{safe}"
     video = os.path.join(OUT, stem + ".mp4")
     make_video(p, hook, data["handle"], video)
     caps = captions(p, hook, data["hub"])
     txt = os.path.join(OUT, stem + "-แคปชัน.txt")
     with open(txt, "w", encoding="utf-8") as fh:
-        fh.write(f"ชุดคอนเทนต์ {day.isoformat()} · {p['name']}\nลิงก์สินค้า: {p['link']}\n")
+        fh.write(f"ชุดคอนเทนต์ {day.isoformat()} · {p['name']} · มุม: {angle}\nลิงก์สินค้า: {p['link']}\n")
         for k, v in caps.items():
             fh.write(f"\n===== {k} =====\n{v}\n")
-    print(json.dumps({"product": p["name"], "hook": hook, "video": video, "captions": txt}, ensure_ascii=False))
+    print(json.dumps({"id": p["id"], "product": p["name"], "angle": angle, "hook": hook, "sold": p["sold"],
+                      "video": video, "captions": txt}, ensure_ascii=False))
 
 
 if __name__ == "__main__":
