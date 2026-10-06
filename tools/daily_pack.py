@@ -6,7 +6,7 @@
 เลือกสินค้า: ตัวที่ขายได้ถูกเลือกถี่ขึ้น ไม่ซ้ำสองวันติด  เลือกมุม: เปลี่ยนทุกวัน ไม่ซ้ำมุมล่าสุดของสินค้านั้น
 ผลลัพธ์อยู่ในโฟลเดอร์ out/
 """
-import json, math, os, subprocess, sys, datetime
+import json, math, os, re, subprocess, sys, datetime
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -247,7 +247,7 @@ def main():
     angle, tpl = pick_angle(p, day)
     hook = tpl.format(name=p["name"])
     os.makedirs(OUT, exist_ok=True)
-    safe = "".join(c for c in p["name"] if c.isalnum())[:20] or "product"
+    safe = re.sub(r'[\\/:*?"<>|\s]+', "-", p["name"]).strip("-")[:30] or "product"
     stem = f"{day.isoformat()}-{safe}"
     video = os.path.join(OUT, stem + ".mp4")
     make_video(p, hook, data["handle"], video)
