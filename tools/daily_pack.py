@@ -207,6 +207,7 @@ def load_items(path):
             "benefits": b[:3], "sold": float(x.get("sold") or x.get("ขายได้") or 0),
             "last": x.get("last") or x.get("ทำล่าสุด") or "", "last_angle": x.get("last_angle") or x.get("มุมล่าสุด") or "",
             "active": (x.get("สถานะ") or "ใช้งาน") != "พัก",
+            "posts7": int(float(x.get("posts7") or x.get("โพสต์7วัน") or 0)),
             "tags": x.get("tags") or [name.replace(" ", ""), "รีวิวของใช้", "ของมันต้องมี"],
         })
     return [x for x in out if x["active"] and x["link"]]
@@ -219,8 +220,11 @@ def pick(items, day):
             return (day - datetime.date.fromisoformat(x["last"][:10])).days
         except ValueError:
             return 30
-    pool = [x for x in items if days_since(x) >= 2] or [x for x in items if days_since(x) >= 1] or items
-    return max(pool, key=lambda x: ((1 + 3 * x["sold"]) * min(days_since(x), 7), -items.index(x)))
+    # พักสินค้าที่โพสต์ตั้งแต่ 4 ครั้งใน 7 วันแต่ยังขายไม่ได้ (ถ้ายังมีตัวอื่นให้เลือก)
+    fresh = [x for x in items if not (x["posts7"] >= 4 and x["sold"] <= 0)] or items
+    pool = [x for x in fresh if days_since(x) >= 2] or [x for x in fresh if days_since(x) >= 1] or fresh
+    # ขายได้ถูกเลือกถี่ขึ้น โพสต์น้อยได้เปรียบ
+    return max(pool, key=lambda x: ((1 + 3 * x["sold"]) * min(days_since(x), 7) / (1 + x["posts7"]), -items.index(x)))
 
 
 def pick_angle(p, day):
