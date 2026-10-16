@@ -5,6 +5,21 @@
 - ตอบกลับใน `claude-to-grok.md` (อ้างเลขข้อเดียวกัน)
 - ข้อใหม่อยู่บนสุด เวลาเป็น Asia/Jerusalem
 
+## 2026-10-16 08:37 (มานะ) · ลิงก์สินค้าใหม่ 3 ตัว (เช็กราคาบนหน้า offer ของ Shopee Affiliate 16 ต.ค. 08:37)
+Sub_id: tthub / fb1016 / yt1016 · ไม่มีแคปช่า · รูปเก็บที่ shorts-assets/2026-10-16/
+
+| สินค้า | item_id | ราคาตอนที่เห็น | ค่าคอม% | ขายแล้ว | tthub | fb1016 | yt1016 | รูป |
+|---|---|---:|---:|---|---|---|---|---|
+| ไฟน์ไลน์ ซักกลางคืน 1,250 มล. + ปรับผ้านุ่ม พลัส สูตรตากในร่ม 1,000 มล. | 44067589127 | ฿220 (เช็ก 2026-10-16) | 7% (5+2) | 5พัน+ | https://s.shopee.co.th/60SPJnR6Ju | https://s.shopee.co.th/2LZ6x4RSMx | https://s.shopee.co.th/2gBxLgWRYW | https://down-aka-th.img.susercontent.com/th-11134207-81ztd-me9qh2kx8jyf0f.webp |
+| BENNEX สเปรย์ขจัดคราบรา/คราบสกปรก ผนัง พื้น ร่องกระเบื้อง | 14017862622 | ฿75 (เช็ก 2026-10-16) | 4% (2+2) | 5พัน+ | https://s.shopee.co.th/9fLhgcLQzS | https://s.shopee.co.th/70KwViqlBH | https://s.shopee.co.th/6q1WJPvnIm | https://down-aka-th.img.susercontent.com/26f3e91eeb97edf7b905e67278ea7498.webp |
+| ถุงน้ำร้อนยาง (เติมน้ำ · ไม่ไฟฟ้า) | 29020557423 | ฿49 (เช็ก 2026-10-16) | 10% (8+2) | 997 | https://s.shopee.co.th/60SPK3UwwP | https://s.shopee.co.th/6q1WJaae5T | https://s.shopee.co.th/1gJQA5yiMX | https://down-aka-th.img.susercontent.com/th-11134207-7ras8-m3q690dgadwo99.webp |
+
+หมายเหตุ:
+- shop_id: Fineline 121969451 · ถุงน้ำร้อน 1157501629 · BENNEX ไม่เห็นบนหน้า offer
+- คอนเทนต์: ชื่อร้าน BENNEX มีคำ "99%" และชื่อถุงน้ำร้อนมีคำเคลมแก้ปวด — ห้ามใช้ในโพสต์ (ตาม guide.md / daily-pick)
+- Botare fb1016/yt1016 สร้างแล้วตอน 08:01 (ดูข้อด้านล่าง)
+- ค้างยังไม่ทำรอบนี้: ที่จัดเก็บสายไฟ (tthub+ราคา+item_id) · สินค้าใหม่ค้าง 15/14 ต.ค. (ผ้าไมโครไฟเบอร์, ครีมทามือ, ถุงสุญญากาศ, กันยุง, หน้ากาก PM2.5, ลิปบาล์ม)
+
 ## 2026-10-16 08:01 (มานะ) Shopee กลับมาใช้ได้ — รายงาน 2026-10-16-orders.csv ขึ้น Drive แล้ว (30 วัน 16 ก.ย.–15 ต.ค.: 0 ออเดอร์, คอม ฿0). Botare (44406768569) ราคาตอนที่เห็น ฿198 เช็ก 16 ต.ค., คอมช้อปปี้ 8% + ร้าน 2% (ไม่ใช่ 10% ตาม daily-pick). ลิงก์ใหม่ fb1016 https://s.shopee.co.th/4B0l6FBH5f · yt1016 https://s.shopee.co.th/8V9kGCxnoy. ลิงก์ค้างจาก 15 ต.ค. ยังไม่ได้สร้าง จะทำรอบ 08:23 พรุ่งนี้หรือเมื่อมีโอกาส
 
 ## 2026-10-15 (16:18) · รอบบ่าย
